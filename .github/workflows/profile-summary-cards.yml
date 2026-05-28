@@ -1,4 +1,4 @@
-name: GitHub Profile Summary Cards
+name: GitHub-Profile-Summary-Cards
 
 on:
   schedule:
@@ -8,27 +8,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: generate
+    name: generate-github-profile-summary-cards
+    
+    permissions:
+      contents: write
 
     steps:
-      - uses: actions/checkout@v3
-
-      # Gunakan GitHub Readme Stats secara internal untuk mengambil data & membuat SVG sendiri
-      - name: Create output directory
-        run: mkdir -p profile-summary-card-output/nord_dark
-
-      - name: Download Stats Cards
-        run: |
-          curl -o profile-summary-card-output/nord_dark/3-stats.svg "https://github-readme-stats-sigma-five.vercel.app/api?username=${{ github.repository_owner }}&show_icons=true&theme=nord"
-          curl -o profile-summary-card-output/nord_dark/1-repos-per-language.svg "https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=${{ github.repository_owner }}&layout=compact&theme=nord"
-          curl -o profile-summary-card-output/nord_dark/2-most-commit-language.svg "https://github-readme-streak-stats.herokuapp.com/?user=${{ github.repository_owner }}&theme=nord"
-          curl -o profile-summary-card-output/nord_dark/0-profile-details.svg "https://github-readme-stats-sigma-five.vercel.app/api?username=${{ github.repository_owner }}&show_icons=true&theme=nord&show=reviews,discussions_started,discussions_answered,prs_merged,prs_merged_percentage"
-
-      # Memasukkan kembali file SVG yang sudah diunduh ke dalam repositori kamu secara otomatis
-      - name: Deploy to Repo
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add profile-summary-card-output/
-          git commit -m "Update profile summary cards" || exit 0
-          git push
+      - uses: actions/checkout@v4
+      
+      # Menggunakan fork stabil yang mempertahankan grafik lingkaran asli
+      - uses: imoneonly/github-profile-summary-cards@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          USERNAME: ${{ github.repository_owner }}
+          BRANCH_NAME: main
